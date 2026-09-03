@@ -46,7 +46,7 @@ function Pricing() {
     <section id="pricing" className="bg-cream-100 py-20 md:py-28">
       <div className="mx-auto max-w-6xl px-6">
         <div className="mx-auto max-w-2xl text-center">
-          <span className="text-sm font-semibold uppercase tracking-wide text-gold-500">
+          <span className="text-sm font-semibold uppercase tracking-wide text-gold-700">
             Pricing
           </span>
           <h2 className="mt-3 font-serif text-3xl font-semibold tracking-tight text-fairway-950 md:text-4xl">

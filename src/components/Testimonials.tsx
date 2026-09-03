@@ -20,13 +20,13 @@ function Testimonials() {
     <section id="testimonials" className="bg-cream-50 py-20 md:py-28">
       <div className="mx-auto max-w-6xl px-6">
         <div className="mx-auto max-w-2xl text-center">
-          <span className="text-sm font-semibold uppercase tracking-wide text-gold-500">
+          <span className="text-sm font-semibold uppercase tracking-wide text-gold-700">
             Results
           </span>
           <h2 className="mt-3 font-serif text-3xl font-semibold tracking-tight text-fairway-950 md:text-4xl">
             What golf pros are saying
           </h2>
-          <p className="mt-4 text-sm uppercase tracking-wide text-fairway-800/50">
+          <p className="mt-4 text-sm uppercase tracking-wide text-fairway-800/80">
             Placeholder testimonials — sample quotes for illustration
           </p>
         </div>
@@ -37,7 +37,7 @@ function Testimonials() {
               key={testimonial.name}
               className="relative rounded-3xl border border-fairway-900/10 bg-cream-100 p-8"
             >
-              <span className="absolute right-6 top-6 rounded-full border border-fairway-900/15 bg-cream-50 px-3 py-1 text-[11px] font-semibold uppercase tracking-wide text-fairway-800/50">
+              <span className="absolute right-6 top-6 rounded-full border border-fairway-900/15 bg-cream-50 px-3 py-1 text-[11px] font-semibold uppercase tracking-wide text-fairway-800/80">
                 Placeholder
               </span>
               <div className="flex gap-1 text-gold-500">
@@ -50,7 +50,7 @@ function Testimonials() {
               </blockquote>
               <figcaption className="mt-6">
                 <div className="font-semibold text-fairway-950">{testimonial.name}</div>
-                <div className="text-sm text-fairway-800/60">{testimonial.role}</div>
+                <div className="text-sm text-fairway-800/70">{testimonial.role}</div>
               </figcaption>
             </figure>
           ))}

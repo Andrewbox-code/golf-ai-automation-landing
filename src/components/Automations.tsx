@@ -65,7 +65,7 @@ function Automations() {
     <section id="automations" className="bg-cream-50 py-20 md:py-28">
       <div className="mx-auto max-w-6xl px-6">
         <div className="mx-auto max-w-2xl text-center">
-          <span className="text-sm font-semibold uppercase tracking-wide text-gold-500">
+          <span className="text-sm font-semibold uppercase tracking-wide text-gold-700">
             The Offer
           </span>
           <h2 className="mt-3 font-serif text-3xl font-semibold tracking-tight text-fairway-950 md:text-4xl">
@@ -78,15 +78,22 @@ function Automations() {
         </div>
 
         <div className="mt-14 grid grid-cols-1 gap-8 lg:grid-cols-5">
-          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:col-span-2 lg:grid-cols-1">
+          <div
+            role="tablist"
+            aria-label="Automation modules"
+            className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:col-span-2 lg:grid-cols-1"
+          >
             {modules.map((module, index) => {
               const isActive = index === activeIndex
               return (
                 <button
                   key={module.name}
                   type="button"
+                  role="tab"
+                  id={`module-tab-${index}`}
+                  aria-selected={isActive}
+                  aria-controls="module-panel"
                   onClick={() => setActiveIndex(index)}
-                  aria-expanded={isActive}
                   className={`flex w-full items-center gap-4 rounded-2xl border px-5 py-4 text-left transition ${
                     isActive
                       ? 'border-fairway-900 bg-fairway-900 text-cream-50 shadow-md'
@@ -117,7 +124,12 @@ function Automations() {
             })}
           </div>
 
-          <div className="rounded-3xl border border-fairway-900/10 bg-fairway-950 p-8 text-cream-50 lg:col-span-3 md:p-10">
+          <div
+            id="module-panel"
+            role="tabpanel"
+            aria-labelledby={`module-tab-${activeIndex}`}
+            className="rounded-3xl border border-fairway-900/10 bg-fairway-950 p-8 text-cream-50 lg:col-span-3 md:p-10"
+          >
             <span className="inline-flex h-12 w-12 items-center justify-center rounded-xl bg-gold-400 text-fairway-950">
               <active.icon className="h-6 w-6" strokeWidth={2} />
             </span>

@@ -33,7 +33,7 @@ function Roi() {
         <div className="mt-14 grid grid-cols-1 gap-6 md:grid-cols-2">
           <div className="rounded-3xl border border-cream-50/10 bg-fairway-950/60 p-8">
             <h3 className="text-sm font-semibold uppercase tracking-wide text-cream-100/60">
-              Before Fairway AI
+              Before ParFront
             </h3>
             <div className="mt-6 space-y-5">
               {before.map((item) => (
@@ -52,7 +52,7 @@ function Roi() {
 
           <div className="rounded-3xl border border-gold-400/30 bg-fairway-950/60 p-8 ring-1 ring-gold-400/20">
             <h3 className="text-sm font-semibold uppercase tracking-wide text-gold-300">
-              With Fairway AI
+              With ParFront
             </h3>
             <div className="mt-6 space-y-5">
               {after.map((item) => (

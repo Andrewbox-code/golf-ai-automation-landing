@@ -23,12 +23,30 @@ const initialState: FormState = {
   painPoint: painPoints[0],
 }
 
+function encodeFormData(data: Record<string, string>) {
+  return Object.keys(data)
+    .map((key) => `${encodeURIComponent(key)}=${encodeURIComponent(data[key])}`)
+    .join('&')
+}
+
 function AuditForm() {
   const [form, setForm] = useState<FormState>(initialState)
   const [submitted, setSubmitted] = useState(false)
 
-  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
+    try {
+      // Netlify Forms: captured automatically once this site is deployed
+      // on Netlify, with zero extra backend. See README for setup.
+      await fetch('/', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: encodeFormData({ 'form-name': 'audit-request', ...form }),
+      })
+    } catch {
+      // Not deployed on Netlify (e.g. local dev, or a different host) —
+      // fall through to the confirmation screen either way.
+    }
     setSubmitted(true)
   }
 
@@ -79,7 +97,19 @@ function AuditForm() {
               </button>
             </div>
           ) : (
-            <form onSubmit={handleSubmit} className="grid grid-cols-1 gap-5 sm:grid-cols-2">
+            <form
+              onSubmit={handleSubmit}
+              name="audit-request"
+              data-netlify="true"
+              netlify-honeypot="bot-field"
+              className="grid grid-cols-1 gap-5 sm:grid-cols-2"
+            >
+              <input type="hidden" name="form-name" value="audit-request" />
+              <p className="hidden">
+                <label>
+                  Leave this field blank: <input name="bot-field" tabIndex={-1} autoComplete="off" />
+                </label>
+              </p>
               <div className="flex flex-col gap-1.5 sm:col-span-1">
                 <label htmlFor="name" className="text-sm font-medium text-cream-100/85">
                   Your name
@@ -144,8 +174,7 @@ function AuditForm() {
                 Book My Free Audit
               </button>
               <p className="text-center text-xs text-cream-100/50 sm:col-span-2">
-                We'll never share your info. This is a demo form — no data
-                is sent anywhere yet.
+                We'll never share your info or spam you.
               </p>
             </form>
           )}

@@ -24,6 +24,19 @@
   </head>
   <body>
     <div id="root"></div>
+    <!--
+      Static form so Netlify's build-time bot can discover and register
+      "audit-request" as a Netlify Form. Never rendered — the visible form
+      lives in src/components/AuditForm.tsx and posts to this form name.
+      See README for Netlify Forms setup.
+    -->
+    <form name="audit-request" data-netlify="true" netlify-honeypot="bot-field" hidden>
+      <input type="text" name="name" />
+      <input type="text" name="business" />
+      <input type="email" name="email" />
+      <input type="text" name="painPoint" />
+      <input type="text" name="bot-field" />
+    </form>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

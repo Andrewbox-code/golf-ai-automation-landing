@@ -19,7 +19,7 @@ function Header() {
             <Flag className="h-4 w-4" strokeWidth={2.5} />
           </span>
           <span className="font-serif text-lg font-semibold tracking-tight text-fairway-950">
-            Fairway AI
+            ParFront
           </span>
         </a>
         <nav className="hidden items-center gap-8 text-sm font-medium text-fairway-800 md:flex">

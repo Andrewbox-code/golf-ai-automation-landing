@@ -1,4 +1,4 @@
-# Fairway AI — Golf Automation Landing Page
+# ParFront — Golf Automation Landing Page
 
 Landing page for an AI automation agency serving golf instructors, small
 golf courses, and driving ranges. Built with React, TypeScript, Vite, and

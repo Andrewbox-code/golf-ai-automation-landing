@@ -1,0 +1,40 @@
+import { missedCallOpener } from './_lib/messages.mts'
+import { sendSms } from './_lib/twilio-sms.mts'
+import { parseTwilioForm, verifyTwilioSignature } from './_lib/twilio-verify.mts'
+import { twimlResponse } from './_lib/twiml.mts'
+
+/**
+ * Twilio's callback once a <Dial> to the business's forward number
+ * finishes (answered, no answer, busy, or failed). Anything other than
+ * "completed" means the call went unanswered, so this texts the caller
+ * back immediately instead of leaving them with a missed call.
+ */
+export default async (req: Request): Promise<Response> => {
+  if (req.method !== 'POST') {
+    return new Response('Method Not Allowed', { status: 405 })
+  }
+
+  const authToken = process.env.TWILIO_AUTH_TOKEN
+  if (!authToken) {
+    return new Response('Not configured', { status: 503 })
+  }
+
+  const params = await parseTwilioForm(req)
+  const signature = req.headers.get('x-twilio-signature')
+  if (!verifyTwilioSignature(req.url, params, signature, authToken)) {
+    return new Response('Invalid signature', { status: 403 })
+  }
+
+  const dialStatus = params.DialCallStatus
+  const caller = params.From
+  const businessName = process.env.BUSINESS_NAME || 'the team'
+
+  if (dialStatus !== 'completed' && caller) {
+    await sendSms(caller, missedCallOpener(businessName)).catch((error) =>
+      console.error('Text-back send failed:', error),
+    )
+    return twimlResponse('<Say>Sorry we missed you — we just texted you so we can help from there.</Say><Hangup/>')
+  }
+
+  return twimlResponse('<Hangup/>')
+}

@@ -51,10 +51,20 @@ sell to their own local-business clients.
   function isn't reachable, e.g. plain local dev), it falls back
   automatically to a realistic scripted conversation so the site never
   breaks — see the README's "Enabling real AI conversations" section
+- A **real missed-call text-back and SMS pipeline** via Twilio
+  (`netlify/functions/twilio-voice.mts`, `twilio-voice-status.mts`,
+  `sms.mts`) — an unanswered call gets texted back within seconds, and
+  the resulting SMS conversation runs on the same Claude backend with
+  short-term memory per phone number (Netlify Blobs). All three verify
+  Twilio's request signature before doing anything, and every send is
+  wrapped so a Twilio or Blobs hiccup degrades gracefully instead of
+  crashing the webhook. Needs a Twilio account + phone number to
+  activate — see the README's "Enabling real missed-call text-back"
+  section for exact setup steps
 - The lead form posts to Netlify Forms — zero backend, works the moment
   this is deployed on Netlify (see README for deploy steps)
-- Nothing here yet handles real phone numbers, real SMS, real calendars,
-  or billing — that's the roadmap below
+- Nothing here yet handles real calendars or billing — that's the
+  roadmap below
 
 ## What's needed from the human to go further
 
@@ -65,10 +75,13 @@ sell to their own local-business clients.
   conversation (this is the one piece of Phase 3 already coded and
   waiting on a key)
 - A domain name (optional but recommended before real outreach)
-- For Phase 4+: a Twilio account (for real SMS/missed-call text-back), a
-  Stripe account (for billing), and a calendar API (Cal.com or Google
-  Calendar) — none of these are needed to deploy and start collecting
-  leads, or even to run real AI conversations, today
+- A Twilio account + phone number, set as `TWILIO_ACCOUNT_SID`,
+  `TWILIO_AUTH_TOKEN`, and `TWILIO_PHONE_NUMBER` in Netlify — turns on
+  real missed-call text-back and SMS (this is Phase 4, already coded and
+  waiting on an account, same as Phase 3 waited on an Anthropic key)
+- For Phase 5+: a Stripe account (for billing) and a calendar API
+  (Cal.com or Google Calendar) — neither is needed to deploy, collect
+  leads, run real AI web chat, or run real missed-call text-back today
 
 ## Roadmap, in priority order (revenue first, infrastructure second)
 
@@ -88,9 +101,14 @@ sell to their own local-business clients.
    customer's own site (it currently only runs on this landing page), and
    let the system prompt be configured per-business instead of hardcoded
    to the "Bright Smile Dental" demo persona.
-4. **Missed-call text-back via Twilio.** When a call to a client's
-   forwarded/tracking number goes unanswered, auto-send an SMS that opens
-   the same AI conversation flow, texting back within seconds.
+4. **Missed-call text-back via Twilio — done, pending an account.**
+   `netlify/functions/twilio-voice.mts`, `twilio-voice-status.mts`, and
+   `sms.mts` handle the full flow: ring the business (if configured),
+   text back on no-answer, and carry the SMS conversation on the same
+   Claude backend with per-number memory. Buy a Twilio number and set
+   `TWILIO_ACCOUNT_SID`/`TWILIO_AUTH_TOKEN`/`TWILIO_PHONE_NUMBER` to turn
+   it on — see the README. Same "shared demo persona" limitation as
+   Phase 3 applies here too: it's not yet per-business configurable.
 5. **Calendar booking.** Wire confirmed appointments into Cal.com or
    Google Calendar so bookings land on the business's real calendar
    without manual entry.
@@ -105,8 +123,11 @@ sell to their own local-business clients.
 > I'm continuing work on Recepta AI, an AI front desk product for local
 > service businesses, in this repo. Read `BUILD_BRIEF.md` and `README.md`
 > for full context on the product, business model, and roadmap. The
-> landing page and a scripted live demo already exist and are deployed
-> (or ready to deploy) via Netlify. My priority is revenue: help me either
+> landing page is deployed (or ready to deploy) via Netlify, with a real
+> Claude-powered backend for web chat and Twilio-powered missed-call
+> text-back/SMS already built — both just need their respective API keys
+> set in Netlify to go live (see "What's needed from the human" in
+> `BUILD_BRIEF.md`). My priority is revenue: help me either
 > (a) push the roadmap forward — pick the next unbuilt phase in
 > `BUILD_BRIEF.md`'s roadmap and implement it, or (b) improve conversion
 > on the existing landing page (copy, demo realism, pricing framing), or

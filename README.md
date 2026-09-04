@@ -42,6 +42,39 @@ and `npx netlify-cli dev` to run the function locally (plain `npm run dev`
 does not run Netlify Functions, so the widget will use the scripted
 fallback in local dev unless you use `netlify dev`).
 
+## Enabling real missed-call text-back (Twilio)
+
+Beyond the website chat widget, this repo also has a real backend for
+Recepta AI's other core pitch — texting back missed calls and carrying on
+an SMS conversation — via three more Netlify Functions:
+
+- `netlify/functions/twilio-voice.mts` — handles an incoming call: rings
+  `BUSINESS_FORWARD_NUMBER` if set, or texts back immediately if not
+- `netlify/functions/twilio-voice-status.mts` — fires when that ring
+  attempt finishes; anything other than "answered" triggers a text-back
+- `netlify/functions/sms.mts` — handles the resulting SMS conversation
+  with real Claude replies and short-term memory per phone number (via
+  Netlify Blobs, zero extra setup — provisioned automatically once
+  deployed on Netlify)
+
+Every one of these verifies Twilio's `X-Twilio-Signature` header (using
+Twilio's own SDK, not a hand-rolled check) before doing anything, so only
+genuine requests from Twilio can trigger a paid API call or an SMS send.
+
+To turn it on:
+
+1. Buy a phone number in [console.twilio.com](https://console.twilio.com).
+2. Add `TWILIO_ACCOUNT_SID`, `TWILIO_AUTH_TOKEN`, and `TWILIO_PHONE_NUMBER`
+   (the number you just bought) to your Netlify environment variables —
+   same place as `ANTHROPIC_API_KEY`, both are required for this to work.
+3. Optionally set `BUSINESS_FORWARD_NUMBER` (the real business line to
+   try first) and `BUSINESS_NAME` (used in the text-back opener).
+4. In the Twilio number's configuration, set:
+   - **A call comes in** → Webhook, `https://YOUR-SITE.netlify.app/.netlify/functions/twilio-voice`, HTTP POST
+   - **A message comes in** → Webhook, `https://YOUR-SITE.netlify.app/.netlify/functions/sms`, HTTP POST
+5. Redeploy (env var changes need a redeploy to take effect) and call the
+   number to test.
+
 ## Development
 
 ```bash

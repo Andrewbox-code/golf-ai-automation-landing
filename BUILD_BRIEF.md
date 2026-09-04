@@ -41,26 +41,34 @@ sell to their own local-business clients.
 
 ## Current state (what's already built)
 
-- Static React/Vite/Tailwind landing page (`src/`) with hero, problem,
-  live interactive demo, how-it-works, target industries, pricing, and a
+- React/Vite/Tailwind landing page (`src/`) with hero, problem, live
+  interactive demo, how-it-works, target industries, pricing, and a
   founding-partner lead-capture form
-- The "live demo" (`src/components/LiveDemo.tsx`) is a **scripted**
-  keyword-matched chat, not a real AI backend — it exists so a prospect
-  can feel the product immediately with zero infrastructure cost
+- A **real Claude-powered backend** for the live demo
+  (`netlify/functions/chat.mts`) — once `ANTHROPIC_API_KEY` is set in
+  Netlify's environment variables, `src/components/LiveDemo.tsx` has real
+  AI conversations, not a script. Without the key set (or when the
+  function isn't reachable, e.g. plain local dev), it falls back
+  automatically to a realistic scripted conversation so the site never
+  breaks — see the README's "Enabling real AI conversations" section
 - The lead form posts to Netlify Forms — zero backend, works the moment
-  this is deployed on Netlify (see README for the 3-step deploy)
-- Nothing here handles real phone numbers, real SMS, real calendars, or
-  billing yet — that's the roadmap below
+  this is deployed on Netlify (see README for deploy steps)
+- Nothing here yet handles real phone numbers, real SMS, real calendars,
+  or billing — that's the roadmap below
 
 ## What's needed from the human to go further
 
-- A Netlify (or similar) account connected to this GitHub repo — deploy
-  takes minutes and needs no other setup for the current MVP
+- A Netlify account connected to this GitHub repo — deploy takes minutes
+  (`netlify.toml` in this repo already configures the build + functions)
+- An Anthropic API key from console.anthropic.com, set as
+  `ANTHROPIC_API_KEY` in Netlify — turns the live demo into a real AI
+  conversation (this is the one piece of Phase 3 already coded and
+  waiting on a key)
 - A domain name (optional but recommended before real outreach)
-- For Phase 3+: an Anthropic API key (for real AI conversations), a
-  Twilio account (for real SMS/missed-call text-back), a Stripe account
-  (for billing), and a calendar API (Cal.com or Google Calendar) — none
-  of these are needed to deploy and start collecting leads today
+- For Phase 4+: a Twilio account (for real SMS/missed-call text-back), a
+  Stripe account (for billing), and a calendar API (Cal.com or Google
+  Calendar) — none of these are needed to deploy and start collecting
+  leads, or even to run real AI conversations, today
 
 ## Roadmap, in priority order (revenue first, infrastructure second)
 
@@ -73,11 +81,13 @@ sell to their own local-business clients.
    cold email/DM scripts targeting the industries in `Industries.tsx`,
    pitching the live demo link directly. Track reply and signup rates per
    script/industry and double down on what converts.
-3. **Real AI backend.** Replace the scripted `LiveDemo` with an actual
-   Claude-powered conversation engine behind a serverless function
-   (Netlify Functions or Vercel), so the same widget can be embedded on a
-   real customer's site. Keep the Anthropic API key server-side only —
-   never ship it to the client.
+3. **Real AI backend — done, pending a key.** `netlify/functions/chat.mts`
+   already calls Claude server-side (the API key never reaches the
+   client). Set `ANTHROPIC_API_KEY` in Netlify to turn it on. Next
+   evolution here: make the widget embeddable as a snippet on a real
+   customer's own site (it currently only runs on this landing page), and
+   let the system prompt be configured per-business instead of hardcoded
+   to the "Bright Smile Dental" demo persona.
 4. **Missed-call text-back via Twilio.** When a call to a client's
    forwarded/tracking number goes unanswered, auto-send an SMS that opens
    the same AI conversation flow, texting back within seconds.

@@ -13,12 +13,34 @@ session any time you want to keep building this out.
 ## What's live in this MVP
 
 - Pain-first hero and problem section aimed at missed-call/missed-chat leads
-- A **fully interactive live demo** (`src/components/LiveDemo.tsx`) — a
-  scripted-but-realistic chat widget visitors can actually type into, so
-  prospects feel the product before any real backend exists
+- A **real, working live demo** (`src/components/LiveDemo.tsx` +
+  `netlify/functions/chat.mts`) — the chat widget calls a real Claude-powered
+  backend once you add an API key (see below). If the key isn't set, or the
+  function isn't reachable (e.g. plain `npm run dev`/`vite preview`), it
+  falls back to a realistic scripted conversation automatically — the site
+  always works, it just isn't "live AI" until configured
 - How-it-works, target-industries, and founding-partner pricing sections
 - A lead-capture form (`src/components/WaitlistForm.tsx`) for founding
   partners, wired to Netlify Forms with zero extra backend
+
+## Enabling real AI conversations
+
+The live demo is backed by a real Netlify Function (`netlify/functions/chat.mts`)
+that calls the Claude API. To turn it on:
+
+1. Deploy this site on Netlify (see below).
+2. In your Netlify site: **Site configuration → Environment variables** →
+   add `ANTHROPIC_API_KEY` with a key from
+   [console.anthropic.com](https://console.anthropic.com).
+3. Redeploy. The widget's status line will switch to "Live AI · online now"
+   once it gets a real response.
+
+Optionally set `CHAT_MODEL` (defaults to `claude-sonnet-5`) to use a
+cheaper/faster model like `claude-haiku-4-5-20251001` if this gets enough
+public traffic that cost matters. See `.env.example` for both variables,
+and `npx netlify-cli dev` to run the function locally (plain `npm run dev`
+does not run Netlify Functions, so the widget will use the scripted
+fallback in local dev unless you use `netlify dev`).
 
 ## Development
 
@@ -37,11 +59,15 @@ out of the box with zero extra backend:
 
 1. Push this repo to GitHub (already done if you're reading this from the repo).
 2. Go to [app.netlify.com](https://app.netlify.com) → **Add new site** →
-   **Import an existing project** → pick this repo and branch.
-3. Build command: `npm run build`. Publish directory: `dist`. Deploy.
-4. Every submission on the "Claim your founding-partner spot" form now
+   **Import an existing project** → pick this repo and branch. Netlify
+   reads `netlify.toml` in this repo automatically, so build command,
+   publish directory, and the functions folder are already configured —
+   just confirm and deploy.
+3. Every submission on the "Claim your founding-partner spot" form now
    shows up under your Netlify site's **Forms** tab, and Netlify can email
    you on each new submission (Site settings → Forms → Notifications).
+4. Add `ANTHROPIC_API_KEY` (see "Enabling real AI conversations" below) to
+   make the live demo run on real AI instead of its scripted fallback.
 
 No Formspree, no database, no server code — the form in
 `src/components/WaitlistForm.tsx` already posts to Netlify's forms

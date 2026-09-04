@@ -6,6 +6,11 @@ type Message = {
   text: string
 }
 
+type ApiMessage = {
+  role: 'user' | 'assistant'
+  content: string
+}
+
 const openingMessage: Message = {
   from: 'ai',
   text:
@@ -23,7 +28,7 @@ function randomDelayMs(): number {
   return 700 + Math.random() * 500
 }
 
-function reply(input: string): string {
+function scriptedReply(input: string): string {
   const text = input.toLowerCase()
 
   if (/(appointment|book|available|open|tomorrow|today|schedule|slot)/.test(text)) {
@@ -47,26 +52,70 @@ function reply(input: string): string {
   return "Got it — let me get that sorted for you. Could I grab your name and phone number so I can follow up (or text you the details) right away?"
 }
 
+async function fetchLiveReply(history: ApiMessage[]): Promise<string> {
+  const controller = new AbortController()
+  const timeout = window.setTimeout(() => controller.abort(), 15000)
+  try {
+    const res = await fetch('/.netlify/functions/chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ messages: history }),
+      signal: controller.signal,
+    })
+    if (!res.ok) throw new Error(`chat function returned ${res.status}`)
+    const data = (await res.json()) as { reply?: string }
+    if (!data.reply) throw new Error('chat function returned no reply')
+    return data.reply
+  } finally {
+    window.clearTimeout(timeout)
+  }
+}
+
 function LiveDemo() {
   const [messages, setMessages] = useState<Message[]>([openingMessage])
   const [input, setInput] = useState('')
   const [typing, setTyping] = useState(false)
+  const [liveAi, setLiveAi] = useState<boolean | null>(null)
+  const apiUnavailable = useRef(false)
   const scrollRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: 'smooth' })
   }, [messages, typing])
 
-  function send(text: string) {
+  async function send(text: string) {
     const trimmed = text.trim()
     if (!trimmed || typing) return
-    setMessages((prev) => [...prev, { from: 'user', text: trimmed }])
+
+    const nextMessages = [...messages, { from: 'user', text: trimmed } as Message]
+    setMessages(nextMessages)
     setInput('')
     setTyping(true)
-    window.setTimeout(() => {
-      setMessages((prev) => [...prev, { from: 'ai', text: reply(trimmed) }])
+
+    if (apiUnavailable.current) {
+      window.setTimeout(() => {
+        setMessages((prev) => [...prev, { from: 'ai', text: scriptedReply(trimmed) }])
+        setTyping(false)
+      }, randomDelayMs())
+      return
+    }
+
+    try {
+      const history: ApiMessage[] = nextMessages.map((m) => ({
+        role: m.from === 'user' ? 'user' : 'assistant',
+        content: m.text,
+      }))
+      const reply = await fetchLiveReply(history)
+      setMessages((prev) => [...prev, { from: 'ai', text: reply }])
+      setLiveAi(true)
+    } catch {
+      apiUnavailable.current = true
+      setLiveAi(false)
+      await new Promise((resolve) => window.setTimeout(resolve, randomDelayMs()))
+      setMessages((prev) => [...prev, { from: 'ai', text: scriptedReply(trimmed) }])
+    } finally {
       setTyping(false)
-    }, randomDelayMs())
+    }
   }
 
   return (
@@ -93,7 +142,8 @@ function LiveDemo() {
             <div>
               <p className="text-sm font-semibold text-ink-50">Bright Smile Dental — AI Front Desk</p>
               <p className="flex items-center gap-1.5 text-xs text-mint-400">
-                <span className="h-1.5 w-1.5 rounded-full bg-mint-400" /> Online now
+                <span className="h-1.5 w-1.5 rounded-full bg-mint-400" />
+                {liveAi ? 'Live AI · online now' : 'Online now'}
               </p>
             </div>
           </div>
@@ -177,9 +227,9 @@ function LiveDemo() {
           </div>
         </div>
         <p className="mt-4 text-center text-xs text-ink-300/60">
-          This preview is scripted to show the experience. Your live agent runs on
-          real conversation AI, trained on your business's hours, pricing, and
-          calendar.
+          {liveAi
+            ? "You're talking to real Claude-powered conversation AI, trained on this demo practice's hours, pricing, and calendar."
+            : 'Your live agent runs on real conversation AI, trained on your business\'s hours, pricing, and calendar.'}
         </p>
       </div>
     </section>

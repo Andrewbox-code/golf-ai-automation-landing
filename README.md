@@ -1,16 +1,24 @@
-# ParFront — Golf Automation Landing Page
+# Recepta AI — Your AI Front Desk
 
-Landing page for an AI automation agency serving golf instructors, small
-golf courses, and driving ranges. Built with React, TypeScript, Vite, and
-Tailwind CSS.
+Landing page + live interactive demo for **Recepta AI**, an AI front desk for
+local service businesses (salons, dental/med spas, contractors, auto shops,
+gyms, vets). It answers website chat and texts back every missed call 24/7,
+qualifies the lead, and books it straight into the business's calendar.
+Built with React, TypeScript, Vite, and Tailwind CSS.
 
-## What it covers
+See [`BUILD_BRIEF.md`](./BUILD_BRIEF.md) for the full product vision, the
+monetization plan, and the phased roadmap — hand that file to a Claude Code
+session any time you want to keep building this out.
 
-- Pain-first hero, problem section, and an interactive "what we automate"
-  module picker (lead follow-up, no-show reduction, review generation,
-  FAQ chatbot)
-- ROI before/after section, pricing tiers, placeholder testimonials, and
-  a lead capture form for booking a free automation audit
+## What's live in this MVP
+
+- Pain-first hero and problem section aimed at missed-call/missed-chat leads
+- A **fully interactive live demo** (`src/components/LiveDemo.tsx`) — a
+  scripted-but-realistic chat widget visitors can actually type into, so
+  prospects feel the product before any real backend exists
+- How-it-works, target-industries, and founding-partner pricing sections
+- A lead-capture form (`src/components/WaitlistForm.tsx`) for founding
+  partners, wired to Netlify Forms with zero extra backend
 
 ## Development
 
@@ -29,20 +37,18 @@ out of the box with zero extra backend:
 
 1. Push this repo to GitHub (already done if you're reading this from the repo).
 2. Go to [app.netlify.com](https://app.netlify.com) → **Add new site** →
-   **Import an existing project** → pick this repo.
+   **Import an existing project** → pick this repo and branch.
 3. Build command: `npm run build`. Publish directory: `dist`. Deploy.
-4. Every submission on the "Book a free automation audit" form now shows
-   up under your Netlify site's **Forms** tab, and Netlify can email you
-   on each new submission (Site settings → Forms → Notifications).
+4. Every submission on the "Claim your founding-partner spot" form now
+   shows up under your Netlify site's **Forms** tab, and Netlify can email
+   you on each new submission (Site settings → Forms → Notifications).
 
 No Formspree, no database, no server code — the form in
-`src/components/AuditForm.tsx` already posts to Netlify's forms endpoint,
-and `index.html` has the hidden static form Netlify needs to register it
-at build time. This only activates on Netlify; on any other host (or in
-local dev) the form still works from the visitor's point of view, it just
-doesn't have anywhere to deliver submissions yet — swap in your own
-backend (Formspree, a Zapier webhook, your CRM's API) by changing the
-`fetch` call in `handleSubmit`.
+`src/components/WaitlistForm.tsx` already posts to Netlify's forms
+endpoint, and `index.html` has the hidden static form Netlify needs to
+register it at build time. This only activates on Netlify; on any other
+host (or in local dev) the form still works from the visitor's point of
+view, it just doesn't have anywhere to deliver submissions yet.
 
 ### Custom domain
 
@@ -52,10 +58,10 @@ This step needs your own domain registrar login, so it isn't something
 that can be done for you — but it's a five-minute, no-code step once the
 site is live.
 
-## Live demo
+## Next steps
 
-A snapshot of this page is also published at
-`https://claude.ai/code/artifact/82e7e9b5-f103-4b7d-9695-382d2ccf2a26` for
-sharing the look and feel quickly. That link is a static preview only —
-its form does not deliver anywhere — so use a real Netlify (or other)
-deployment for anything you plan to send prospects to for lead capture.
+This repo is the MVP: a landing page proving the pitch with a working
+interactive demo, and a way to capture interested leads. It is **not yet**
+running real AI conversations, real SMS, or real billing — see
+[`BUILD_BRIEF.md`](./BUILD_BRIEF.md) for exactly what to build next and in
+what order, prioritized by what gets this to paying customers fastest.

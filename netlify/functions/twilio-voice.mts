@@ -32,8 +32,8 @@ export default async (req: Request): Promise<Response> => {
   const caller = params.From
 
   if (!business.forwardNumber) {
-    if (caller) {
-      await sendSms(caller, missedCallOpener(business.name)).catch((error) =>
+    if (caller && params.To) {
+      await sendSms(caller, params.To, missedCallOpener(business.name)).catch((error) =>
         console.error('Text-back send failed:', error),
       )
     }

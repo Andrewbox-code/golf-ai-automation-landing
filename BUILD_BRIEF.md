@@ -89,9 +89,9 @@ sell to their own local-business clients.
   conversation (this is the one piece of Phase 3 already coded and
   waiting on a key)
 - A domain name (optional but recommended before real outreach)
-- A Twilio account + phone number, set as `TWILIO_ACCOUNT_SID`,
-  `TWILIO_AUTH_TOKEN`, and `TWILIO_PHONE_NUMBER` in Netlify — turns on
-  real missed-call text-back and SMS (this is Phase 4, already coded and
+- A Twilio account, set as `TWILIO_ACCOUNT_SID`/`TWILIO_AUTH_TOKEN` in
+  Netlify — one account covers every business's number, this is a
+  one-time setup, not per-customer (this is Phase 4, already coded and
   waiting on an account, same as Phase 3 waited on an Anthropic key)
 - An `ADMIN_KEY` (any long random string) set in Netlify, then a visit
   to `/admin.html` to actually add each real customer's business (their
@@ -120,9 +120,10 @@ sell to their own local-business clients.
    `netlify/functions/twilio-voice.mts`, `twilio-voice-status.mts`, and
    `sms.mts` handle the full flow: ring the business (if configured),
    text back on no-answer, and carry the SMS conversation on the same
-   Claude backend with per-number memory. Buy a Twilio number and set
-   `TWILIO_ACCOUNT_SID`/`TWILIO_AUTH_TOKEN`/`TWILIO_PHONE_NUMBER` to turn
-   it on — see the README.
+   Claude backend with per-number memory. Every text-back sends from the
+   specific business's own Twilio number (whichever number was actually
+   called), never a shared/global one — set `TWILIO_ACCOUNT_SID`/
+   `TWILIO_AUTH_TOKEN` to turn it on — see the README.
 5. **Multi-tenancy — done.** One deployment now answers correctly for as
    many businesses as you add at `/admin.html`, looked up by whichever
    Twilio number was called or texted. Onboarding customer #2, #3, etc.

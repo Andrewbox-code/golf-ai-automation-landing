@@ -74,19 +74,23 @@ To turn it on:
 1. Set `ADMIN_KEY` in your Netlify environment variables to some long
    random string — this is the password for `/admin.html`.
 2. Add `TWILIO_ACCOUNT_SID` and `TWILIO_AUTH_TOKEN` (from
-   [console.twilio.com](https://console.twilio.com)) to the same place.
-3. Redeploy, then open `https://YOUR-SITE.netlify.app/admin.html`, enter
-   your admin key, and add the business: its phone number, name, hours
-   /pricing/services in plain English, and (optionally) a real number to
-   ring before texting back.
-4. Buy that business a Twilio number and add `TWILIO_PHONE_NUMBER` if you
-   haven't already (needed once, for sending texts — shared across every
-   business this deployment serves).
+   [console.twilio.com](https://console.twilio.com)) to the same place —
+   one Twilio account can hold every business's number, so this is a
+   one-time setup, not per-customer.
+3. Redeploy once so those take effect.
+4. For each new customer: buy them a Twilio number (in the same Twilio
+   account), then open `https://YOUR-SITE.netlify.app/admin.html`, enter
+   your admin key, and add the business — that Twilio number, their
+   name, hours/pricing/services in plain English, and (optionally) a
+   real number to ring before texting back.
 5. In that Twilio number's configuration, set:
    - **A call comes in** → Webhook, `https://YOUR-SITE.netlify.app/.netlify/functions/twilio-voice`, HTTP POST
    - **A message comes in** → Webhook, `https://YOUR-SITE.netlify.app/.netlify/functions/sms`, HTTP POST
-6. Call the number to test. To onboard another business, repeat from
-   step 3 with their own Twilio number — no redeploy, no code changes.
+6. Call the number to test — the text-back sends from that same number,
+   never a different one, even with other businesses configured.
+
+Only steps 1-3 are one-time setup. Onboarding customer #2, #3, etc. is
+just step 4 and 5 again — no redeploy, no code changes.
 
 ## Development
 

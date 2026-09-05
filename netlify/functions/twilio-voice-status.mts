@@ -32,8 +32,8 @@ export default async (req: Request): Promise<Response> => {
   const caller = params.From
   const business = await getBusiness(params.To)
 
-  if (dialStatus !== 'completed' && caller) {
-    await sendSms(caller, missedCallOpener(business.name)).catch((error) =>
+  if (dialStatus !== 'completed' && caller && params.To) {
+    await sendSms(caller, params.To, missedCallOpener(business.name)).catch((error) =>
       console.error('Text-back send failed:', error),
     )
     return twimlResponse('<Say>Sorry we missed you — we just texted you so we can help from there.</Say><Hangup/>')

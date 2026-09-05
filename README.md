@@ -49,7 +49,8 @@ Recepta AI's other core pitch — texting back missed calls and carrying on
 an SMS conversation — via three more Netlify Functions:
 
 - `netlify/functions/twilio-voice.mts` — handles an incoming call: rings
-  `BUSINESS_FORWARD_NUMBER` if set, or texts back immediately if not
+  that business's forwarding number if one is set, or texts back
+  immediately if not
 - `netlify/functions/twilio-voice-status.mts` — fires when that ring
   attempt finishes; anything other than "answered" triggers a text-back
 - `netlify/functions/sms.mts` — handles the resulting SMS conversation
@@ -61,19 +62,31 @@ Every one of these verifies Twilio's `X-Twilio-Signature` header (using
 Twilio's own SDK, not a hand-rolled check) before doing anything, so only
 genuine requests from Twilio can trigger a paid API call or an SMS send.
 
+**This deployment can serve more than one business at once.** Whichever
+Twilio number a call or text comes in on decides which business's name,
+hours, pricing, and forwarding number get used — that mapping lives in
+Netlify Blobs and is managed at `/admin.html` (see below), not in code or
+env vars. A number nobody has configured yet just answers as the site's
+own demo persona.
+
 To turn it on:
 
-1. Buy a phone number in [console.twilio.com](https://console.twilio.com).
-2. Add `TWILIO_ACCOUNT_SID`, `TWILIO_AUTH_TOKEN`, and `TWILIO_PHONE_NUMBER`
-   (the number you just bought) to your Netlify environment variables —
-   same place as `ANTHROPIC_API_KEY`, both are required for this to work.
-3. Optionally set `BUSINESS_FORWARD_NUMBER` (the real business line to
-   try first) and `BUSINESS_NAME` (used in the text-back opener).
-4. In the Twilio number's configuration, set:
+1. Set `ADMIN_KEY` in your Netlify environment variables to some long
+   random string — this is the password for `/admin.html`.
+2. Add `TWILIO_ACCOUNT_SID` and `TWILIO_AUTH_TOKEN` (from
+   [console.twilio.com](https://console.twilio.com)) to the same place.
+3. Redeploy, then open `https://YOUR-SITE.netlify.app/admin.html`, enter
+   your admin key, and add the business: its phone number, name, hours
+   /pricing/services in plain English, and (optionally) a real number to
+   ring before texting back.
+4. Buy that business a Twilio number and add `TWILIO_PHONE_NUMBER` if you
+   haven't already (needed once, for sending texts — shared across every
+   business this deployment serves).
+5. In that Twilio number's configuration, set:
    - **A call comes in** → Webhook, `https://YOUR-SITE.netlify.app/.netlify/functions/twilio-voice`, HTTP POST
    - **A message comes in** → Webhook, `https://YOUR-SITE.netlify.app/.netlify/functions/sms`, HTTP POST
-5. Redeploy (env var changes need a redeploy to take effect) and call the
-   number to test.
+6. Call the number to test. To onboard another business, repeat from
+   step 3 with their own Twilio number — no redeploy, no code changes.
 
 ## Development
 

@@ -61,10 +61,24 @@ sell to their own local-business clients.
   crashing the webhook. Needs a Twilio account + phone number to
   activate — see the README's "Enabling real missed-call text-back"
   section for exact setup steps
+- **Real multi-tenancy** (`netlify/functions/_lib/business-store.mts`,
+  `admin-business.mts`, `public/admin.html`) — this one deployment can
+  answer for many different businesses at once. Whichever Twilio number
+  a call/text came in on decides whose name, hours, pricing, and
+  forwarding number get used (stored in Netlify Blobs, looked up by
+  number); an unconfigured number just gets the demo persona. Businesses
+  are added/edited/removed at `/admin.html` (password-protected by
+  `ADMIN_KEY`) with no code changes and no redeploy — this is what lets
+  a second, third, and Nth customer get onboarded without a developer
+  each time. Verified against Netlify's own local Blobs emulator:
+  create/list/lookup/delete all confirmed working, and a call to a
+  configured number correctly uses that business's own persona instead
+  of the demo's.
 - The lead form posts to Netlify Forms — zero backend, works the moment
   this is deployed on Netlify (see README for deploy steps)
-- Nothing here yet handles real calendars or billing — that's the
-  roadmap below
+- Nothing here yet handles real calendars or billing, and the web chat
+  widget still only runs on this landing page (not yet embeddable on a
+  customer's own site) — that's the roadmap below
 
 ## What's needed from the human to go further
 
@@ -79,7 +93,12 @@ sell to their own local-business clients.
   `TWILIO_AUTH_TOKEN`, and `TWILIO_PHONE_NUMBER` in Netlify — turns on
   real missed-call text-back and SMS (this is Phase 4, already coded and
   waiting on an account, same as Phase 3 waited on an Anthropic key)
-- For Phase 5+: a Stripe account (for billing) and a calendar API
+- An `ADMIN_KEY` (any long random string) set in Netlify, then a visit
+  to `/admin.html` to actually add each real customer's business (their
+  Twilio number, name, hours/pricing, forwarding number) — this is the
+  step that turns "the code supports many businesses" into "this
+  specific customer's calls actually work"
+- For Phase 6+: a Stripe account (for billing) and a calendar API
   (Cal.com or Google Calendar) — neither is needed to deploy, collect
   leads, run real AI web chat, or run real missed-call text-back today
 
@@ -96,25 +115,33 @@ sell to their own local-business clients.
    script/industry and double down on what converts.
 3. **Real AI backend — done, pending a key.** `netlify/functions/chat.mts`
    already calls Claude server-side (the API key never reaches the
-   client). Set `ANTHROPIC_API_KEY` in Netlify to turn it on. Next
-   evolution here: make the widget embeddable as a snippet on a real
-   customer's own site (it currently only runs on this landing page), and
-   let the system prompt be configured per-business instead of hardcoded
-   to the "Bright Smile Dental" demo persona.
+   client). Set `ANTHROPIC_API_KEY` in Netlify to turn it on.
 4. **Missed-call text-back via Twilio — done, pending an account.**
    `netlify/functions/twilio-voice.mts`, `twilio-voice-status.mts`, and
    `sms.mts` handle the full flow: ring the business (if configured),
    text back on no-answer, and carry the SMS conversation on the same
    Claude backend with per-number memory. Buy a Twilio number and set
    `TWILIO_ACCOUNT_SID`/`TWILIO_AUTH_TOKEN`/`TWILIO_PHONE_NUMBER` to turn
-   it on — see the README. Same "shared demo persona" limitation as
-   Phase 3 applies here too: it's not yet per-business configurable.
-5. **Calendar booking.** Wire confirmed appointments into Cal.com or
+   it on — see the README.
+5. **Multi-tenancy — done.** One deployment now answers correctly for as
+   many businesses as you add at `/admin.html`, looked up by whichever
+   Twilio number was called or texted. Onboarding customer #2, #3, etc.
+   no longer needs a code change or a redeploy — just a visit to
+   `/admin.html` with their info and a Twilio number pointed at the same
+   two webhook URLs. What's still missing: the web chat widget
+   (`chat.mts`) is wired to accept a `business` key already, but nothing
+   embeds it on a real customer's own site yet — right now it only runs
+   on this landing page as the demo.
+6. **Embeddable web widget.** Package `src/components/LiveDemo.tsx`'s
+   chat UI as a small script a customer can drop into their own site
+   (a `<script>` tag pointing at a bundled widget, similar to Intercom/
+   Drift), passing their business key so `chat.mts` answers as them.
+7. **Calendar booking.** Wire confirmed appointments into Cal.com or
    Google Calendar so bookings land on the business's real calendar
    without manual entry.
-6. **Stripe billing.** Self-serve checkout for the Starter/Growth tiers;
+8. **Stripe billing.** Self-serve checkout for the Starter/Growth tiers;
    the Agency tier can stay a manual sales conversation.
-7. **Case studies.** Once the first founding partners are live, replace
+9. **Case studies.** Once the first founding partners are live, replace
    the honest "no fake testimonials yet" framing in `FoundingPartners.tsx`
    with real quotes and results.
 
@@ -125,9 +152,11 @@ sell to their own local-business clients.
 > for full context on the product, business model, and roadmap. The
 > landing page is deployed (or ready to deploy) via Netlify, with a real
 > Claude-powered backend for web chat and Twilio-powered missed-call
-> text-back/SMS already built — both just need their respective API keys
-> set in Netlify to go live (see "What's needed from the human" in
-> `BUILD_BRIEF.md`). My priority is revenue: help me either
+> text-back/SMS already built, and real multi-tenancy so one deployment
+> can serve many businesses (added/managed at `/admin.html`, no code
+> changes needed per customer) — see "What's needed from the human" in
+> `BUILD_BRIEF.md` for the few things still needed to flip each piece on.
+> My priority is revenue: help me either
 > (a) push the roadmap forward — pick the next unbuilt phase in
 > `BUILD_BRIEF.md`'s roadmap and implement it, or (b) improve conversion
 > on the existing landing page (copy, demo realism, pricing framing), or

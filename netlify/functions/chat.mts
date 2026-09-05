@@ -1,4 +1,6 @@
 import { getAiReply, type ChatMessage } from './_lib/anthropic-client.mts'
+import { getBusiness } from './_lib/business-store.mts'
+import { buildSystemPrompt } from './_lib/persona.mts'
 
 function isValidMessage(value: unknown): value is ChatMessage {
   if (typeof value !== 'object' || value === null) return false
@@ -44,8 +46,15 @@ export default async (req: Request): Promise<Response> => {
     return jsonResponse({ error: 'invalid_messages' }, 400)
   }
 
+  // Lets this same widget eventually be embedded on a real customer's
+  // own site by passing their business key — defaults to the landing
+  // page's own demo persona when none is given.
+  const rawBusinessKey = (body as { business?: unknown })?.business
+  const businessKey = typeof rawBusinessKey === 'string' ? rawBusinessKey.slice(0, 200) : undefined
+
   try {
-    const reply = await getAiReply(messages)
+    const business = await getBusiness(businessKey)
+    const reply = await getAiReply(messages, buildSystemPrompt(business))
     if (!reply) {
       return jsonResponse({ error: 'empty_reply' }, 502)
     }

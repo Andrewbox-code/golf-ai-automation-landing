@@ -1,6 +1,7 @@
 import { getStore } from '@netlify/blobs'
 import { getAiReply, type ChatMessage } from './_lib/anthropic-client.mts'
-import { SMS_ADDENDUM } from './_lib/persona.mts'
+import { getBusiness } from './_lib/business-store.mts'
+import { buildSystemPrompt, SMS_ADDENDUM } from './_lib/persona.mts'
 import { parseTwilioForm, verifyTwilioSignature } from './_lib/twilio-verify.mts'
 import { escapeXml, twimlResponse } from './_lib/twiml.mts'
 
@@ -53,9 +54,14 @@ export default async (req: Request): Promise<Response> => {
     -MAX_HISTORY,
   )
 
+  // "To" is the Twilio number that was texted — looking the business up
+  // by that number is the "name tag" that lets one deployment answer
+  // correctly for many different businesses at once.
+  const business = await getBusiness(params.To)
+
   let reply: string
   try {
-    reply = (await getAiReply(withUserMessage, SMS_ADDENDUM)) ?? FALLBACK_REPLY
+    reply = (await getAiReply(withUserMessage, buildSystemPrompt(business) + SMS_ADDENDUM)) ?? FALLBACK_REPLY
   } catch (error) {
     console.error('SMS AI reply failed:', error)
     reply = FALLBACK_REPLY

@@ -1,14 +1,16 @@
+import { getBusiness } from './_lib/business-store.mts'
 import { missedCallOpener } from './_lib/messages.mts'
 import { sendSms } from './_lib/twilio-sms.mts'
 import { parseTwilioForm, verifyTwilioSignature } from './_lib/twilio-verify.mts'
 import { escapeXml, twimlResponse } from './_lib/twiml.mts'
 
 /**
- * Twilio Voice webhook: fires the moment someone calls the business's
- * Twilio number. If BUSINESS_FORWARD_NUMBER is set, tries to ring the
- * real business line first (see twilio-voice-status.mts for what
- * happens if that goes unanswered). If it isn't set, there's no one to
- * ring, so it texts the caller back immediately instead.
+ * Twilio Voice webhook: fires the moment someone calls a business's
+ * Twilio number. Looks up which business owns the number that was
+ * called ("To") so one deployment can serve many businesses. If that
+ * business has a forwardNumber configured, tries to ring it first (see
+ * twilio-voice-status.mts for what happens if that goes unanswered). If
+ * not, there's no one to ring, so it texts the caller back immediately.
  */
 export default async (req: Request): Promise<Response> => {
   if (req.method !== 'POST') {
@@ -26,13 +28,12 @@ export default async (req: Request): Promise<Response> => {
     return new Response('Invalid signature', { status: 403 })
   }
 
-  const forwardNumber = process.env.BUSINESS_FORWARD_NUMBER
-  const businessName = process.env.BUSINESS_NAME || 'the team'
+  const business = await getBusiness(params.To)
   const caller = params.From
 
-  if (!forwardNumber) {
+  if (!business.forwardNumber) {
     if (caller) {
-      await sendSms(caller, missedCallOpener(businessName)).catch((error) =>
+      await sendSms(caller, missedCallOpener(business.name)).catch((error) =>
         console.error('Text-back send failed:', error),
       )
     }
@@ -41,6 +42,6 @@ export default async (req: Request): Promise<Response> => {
 
   const statusCallback = new URL('/.netlify/functions/twilio-voice-status', req.url).toString()
   return twimlResponse(
-    `<Dial timeout="18" action="${escapeXml(statusCallback)}"><Number>${escapeXml(forwardNumber)}</Number></Dial>`,
+    `<Dial timeout="18" action="${escapeXml(statusCallback)}"><Number>${escapeXml(business.forwardNumber)}</Number></Dial>`,
   )
 }

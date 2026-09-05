@@ -3,118 +3,100 @@ import { Check } from 'lucide-react'
 const tiers = [
   {
     name: 'Starter',
-    price: '$297',
-    description: 'One automation, done right — a focused fix for your biggest leak.',
+    price: '$197',
+    cadence: '/mo',
+    description: 'One location, getting every lead answered.',
     features: [
-      'Choose 1 automation module',
-      'Setup & integration included',
-      'Monthly performance summary',
-      'Email support',
+      'Website chat AI front desk',
+      'Missed-call text-back',
+      'Up to 300 conversations/mo',
+      'Calendar booking integration',
     ],
-    highlighted: false,
+    highlight: false,
   },
   {
     name: 'Growth',
-    price: '$597',
-    description: 'The most popular setup — cover leads, no-shows, and reviews together.',
+    price: '$397',
+    cadence: '/mo',
+    description: 'For busier locations that want SMS too.',
     features: [
-      'Choose any 3 automation modules',
-      'Setup & integration included',
-      'Custom scripts for your business',
-      'Priority phone & text support',
-      'Monthly performance review call',
+      'Everything in Starter',
+      'Two-way SMS lead follow-up',
+      'Up to 1,000 conversations/mo',
+      'Hot-lead alerts to your phone',
+      'Priority setup & tuning',
     ],
-    highlighted: true,
+    highlight: true,
   },
   {
-    name: 'Full-Service',
+    name: 'Agency / White-label',
     price: '$997',
-    description: 'Every module running, fully managed — your entire front desk on autopilot.',
+    cadence: '/mo',
+    description: 'Resell Recepta AI to your own clients under your brand.',
     features: [
-      'All 4 automation modules',
-      'Custom scripts & ongoing tuning',
-      'Priority phone & text support',
-      'Monthly strategy call',
-      'New automations added as we build them',
+      'Unlimited client locations',
+      'Your branding, your pricing',
+      'Dedicated onboarding support',
+      'Volume conversation pricing',
     ],
-    highlighted: false,
+    highlight: false,
   },
 ]
 
 function Pricing() {
   return (
-    <section id="pricing" className="bg-cream-100 py-20 md:py-28">
-      <div className="mx-auto max-w-6xl px-6">
-        <div className="mx-auto max-w-2xl text-center">
-          <span className="text-sm font-semibold uppercase tracking-wide text-gold-700">
-            Pricing
+    <section id="pricing" className="py-20 md:py-28">
+      <div className="mx-auto max-w-5xl px-6">
+        <div className="text-center">
+          <span className="text-sm font-semibold uppercase tracking-wide text-mint-400">
+            Founding-partner pricing
           </span>
-          <h2 className="mt-3 font-serif text-3xl font-semibold tracking-tight text-fairway-950 md:text-4xl">
-            Less than one part-time front desk hire.
+          <h2 className="mt-3 font-display text-3xl font-semibold tracking-tight md:text-4xl">
+            Simple pricing. Locked in for life if you join early.
           </h2>
-          <p className="mt-4 text-lg text-fairway-800/80">
-            Flat monthly retainers. No setup surprises, no long-term
-            contracts, cancel any time.
+          <p className="mx-auto mt-4 max-w-xl text-lg text-ink-300">
+            The first 20 businesses get these rates locked in forever, plus a say
+            in what we build next.
           </p>
         </div>
-
-        <div className="mt-14 grid grid-cols-1 gap-6 lg:grid-cols-3">
+        <div className="mt-14 grid grid-cols-1 gap-6 md:grid-cols-3">
           {tiers.map((tier) => (
             <div
               key={tier.name}
               className={`flex flex-col rounded-3xl border p-8 ${
-                tier.highlighted
-                  ? 'border-fairway-900 bg-fairway-950 text-cream-50 shadow-xl lg:-translate-y-3'
-                  : 'border-fairway-900/10 bg-cream-50 text-fairway-950'
+                tier.highlight
+                  ? 'border-violet-400/50 bg-violet-500/10 shadow-xl shadow-violet-950/40'
+                  : 'border-ink-50/10 bg-navy-850'
               }`}
             >
-              {tier.highlighted && (
-                <span className="mb-4 inline-flex w-fit items-center rounded-full bg-gold-400 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-fairway-950">
-                  Most Popular
+              {tier.highlight && (
+                <span className="mb-4 w-fit rounded-full bg-violet-500 px-3 py-1 text-xs font-semibold text-white">
+                  Most popular
                 </span>
               )}
-              <h3 className="font-serif text-2xl font-semibold">{tier.name}</h3>
-              <p
-                className={`mt-2 text-sm leading-relaxed ${
-                  tier.highlighted ? 'text-cream-100/75' : 'text-fairway-800/70'
-                }`}
-              >
-                {tier.description}
+              <h3 className="font-display text-xl font-semibold">{tier.name}</h3>
+              <p className="mt-1 text-sm text-ink-300">{tier.description}</p>
+              <p className="mt-6 flex items-baseline gap-1">
+                <span className="font-display text-4xl font-semibold">{tier.price}</span>
+                <span className="text-ink-300">{tier.cadence}</span>
               </p>
-              <div className="mt-6 flex items-baseline gap-1.5">
-                <span className="font-serif text-4xl font-semibold">{tier.price}</span>
-                <span
-                  className={`text-sm ${
-                    tier.highlighted ? 'text-cream-100/70' : 'text-fairway-800/60'
-                  }`}
-                >
-                  / month
-                </span>
-              </div>
-              <ul className="mt-8 flex-1 space-y-3">
+              <ul className="mt-6 flex flex-1 flex-col gap-3">
                 {tier.features.map((feature) => (
-                  <li key={feature} className="flex items-start gap-2.5 text-sm">
-                    <Check
-                      className={`mt-0.5 h-4 w-4 shrink-0 ${
-                        tier.highlighted ? 'text-gold-300' : 'text-fairway-600'
-                      }`}
-                      strokeWidth={2.5}
-                    />
-                    <span className={tier.highlighted ? 'text-cream-100/90' : 'text-fairway-800/85'}>
-                      {feature}
-                    </span>
+                  <li key={feature} className="flex items-start gap-2.5 text-sm text-ink-100">
+                    <Check className="mt-0.5 h-4 w-4 shrink-0 text-mint-400" strokeWidth={2.5} />
+                    {feature}
                   </li>
                 ))}
               </ul>
               <a
-                href="#audit"
+                href="#waitlist"
                 className={`mt-8 rounded-full px-6 py-3 text-center text-sm font-semibold transition ${
-                  tier.highlighted
-                    ? 'bg-gold-400 text-fairway-950 hover:bg-gold-300'
-                    : 'bg-fairway-900 text-cream-50 hover:bg-fairway-800'
+                  tier.highlight
+                    ? 'bg-violet-500 text-white hover:bg-violet-400'
+                    : 'border border-ink-50/15 text-ink-50 hover:bg-ink-50/5'
                 }`}
               >
-                Get Started
+                Claim founding rate
               </a>
             </div>
           ))}
